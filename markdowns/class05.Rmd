@@ -1,0 +1,43 @@
+---
+title: "Class 05"
+author: "Megan Watson"
+date: "2026-09-09"
+output: html_document
+---
+
+``` {r game01}
+campus = jsonlite::fromJSON(
+  "https://isa401-find-your-seat.vercel.app/campus.json")
+
+dplyr::glimpse
+
+fsb = campus[['Farmer']] #campus$Farmer; or campus[[5]]
+fsb$code #step 1
+
+sec_floor = fsb$floors[["2"]]
+sec_floor #step 2
+
+# equivalent for step 2
+fsb$floors[[3]]$sections # using the position instead of the name of the list
+
+df = sec_floor$rooms
+df
+```
+# reading the excel file
+```{r read_excel}
+occupation = readxl::read_excel(path = '/Users/meganwatson/Desktop/ISA 401/business_intelligence/data/occupation.xlsx', sheet = "Table 1.4", skip = 1)
+
+# optional: clean the bottom three rows 
+occupation = occupation[-c(32, 33, 34), ] # delete three specific rows, keep all cols (since after the , is empty) --> 1:7
+occupation
+```
+
+## game 2
+```{r}
+logins = readr::read_csv("https://isa401-import-heist.vercel.app/api/stage1")
+
+log = jsonlite::fromJSON("https://isa401-import-heist.vercel.app/api/stage2?key=smithj31")
+
+
+```
+
