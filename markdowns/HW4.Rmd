@@ -1,0 +1,45 @@
+---
+title: "Assignment 4"
+author: "Megan Watson"
+date: "2026-09-12"
+output: html_document
+---
+
+## Question 1
+```{r}
+con <- dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb.db")
+listings <- dbReadTable(con, "listings")
+```
+
+```{r}
+nrow(listings)
+```
+
+## Question 2
+```{r}
+sum(listings$city == "Columbus")
+
+# table(listings$city)
+# can also do that to see all listings
+```
+
+## Question 3
+```{r}
+chicago <- listings[listings$city == "Chicago", ]
+chicago[chicago$price == max(chicago$price), c("name", "price")]
+```
+
+## Question 4
+```{r}
+length(unique(listings$neighbourhood[listings$city == "Chicago"]))
+```
+
+## Question 5
+```{r}
+sum(listings$host_is_superhost == "t", na.rm = TRUE)
+```
+
+## Question 6
+```{r}
+sum(listings$price > 1000)
+```
