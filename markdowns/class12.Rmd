@@ -1,0 +1,101 @@
+---
+title: "Class 12"
+author: "Megan Watson"
+date: "2026-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PlaneCrash Info Example
+
+```{r}
+year = 2025
+
+crash_url = paste0('https://www.planecrashinfo.com/', year, '/', year, '.htm')
+
+crash_page <- rvest::read_html(crash_url, encoding = "ISO-8859-1")
+
+# This should now print without the error
+crash_page
+
+# How many <table> elements are on the page?
+crash_tables <- crash_page |>
+  rvest::html_elements("table") |>
+  rvest::html_table()
+
+crash_df=crash_tables[[1]]
+
+# from a cleaning perspective, there are several thungs that can be changed:
+# [1] replace the colnames with the first row 
+# [2] have better column types (ex. date being a date instead of chr)
+# [3] there are possible things that you can do to clean the data within columns; ex. split columns that cintaainb multipel piesces of information
+
+# for today's class, we will focus on te first two 
+colnames(crash_df)= crash_df[1, ]
+# then delete first row 
+crash_df = crash_df[-1, ]
+
+# converts date into a date object 
+crash_df = crash_df |>
+  dplyr::mutate(Date = lubridate::dmy(Date))
+
+```
+
+```{r in class}
+page = rvest::read_html("https://isa401-salvage.vercel.app/registry?start=1")
+
+classes = page |>
+  rvest::html_elements(".Dreadnought") |>
+  rvest::html_text2()
+
+length(classes)   # check this first: one per card
+
+base = "https://isa401-salvage.vercel.app"
+starts = seq(from = 1, to = 351, by = 50)
+
+pages = vector("list", length(starts))
+
+for (i in seq_along(starts)) {
+  pg = rvest::read_html(
+    paste0(base, "/registry?start=", starts[i])
+  )
+  
+  pages[[i]] = data.frame(
+    class = pg |>
+      rvest::html_elements("div > ul > li:nth-child(1) > span") |>
+      rvest::html_text2(),
+    
+    value = pg |>
+      rvest::html_elements("div > ul > li:nth-child(3) > span") |>
+      rvest::html_text2() |>
+      readr::parse_number()
+  )
+  
+  Sys.sleep(1)   # robots.txt asks for it
+}
+
+registry = dplyr::bind_rows(pages)
+
+nrow(registry)
+
+registry |> dplyr::filter(class == "Dreadnought") |>
+  dplyr::mutate(value = as.numeric(value)) -> Dreadnoughts_df
+
+sum(Dreadnoughts_df$value)
+```
+
+## Structured text Extraction 
+
+### Course Information
+``` {r}
+install.packages("ellmer")
+
+
+chat = ellmer::chat_openai(
+  model = "gpt-5.6-luna",
+  params = ellmer::params(reasoning_effort = "none")
+)
+```
